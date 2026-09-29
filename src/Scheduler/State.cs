@@ -7,11 +7,11 @@ public enum State
 {
 
     /// <summary>A card progressing through its initial learning steps.</summary>
-    Learning,
+    Learning = 1,
 
     /// <summary>A card in its regular review cycle.</summary>
-    Review,
+    Review = 2,
 
     /// <summary>A card progressing through relearning after a lapse.</summary>
-    Relearning
+    Relearning = 3
 }
