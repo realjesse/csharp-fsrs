@@ -2,7 +2,7 @@
 
 ## Project
 
-This repository implements FSRS scheduling and parameter optimization natively in C# for the .NET runtime. It is a reusable library, not an application or hosted service.
+This repository implements FSRS-6 scheduling and parameter optimization natively in C# for the .NET runtime. It is a reusable library, not an application or hosted service.
 
 ## Read First
 
