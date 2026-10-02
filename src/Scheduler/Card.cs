@@ -14,7 +14,12 @@ public sealed record Card
     /// <param name="due">The due date and time.</param>
     /// <param name="lastReview">The previous review date and time, if any.</param>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="state"/> is undefined, or a provided stability or difficulty is outside its valid range.
+    /// <paramref name="state"/> is undefined,
+    /// <paramref name="stability"/> is provided but outside its valid range,
+    /// or <paramref name="difficulty"/> is provided but outside its valid range.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="due"/> or a provided <paramref name="lastReview"/> does not have UTC kind.
     /// </exception>
     public Card(
         int cardId,
@@ -39,6 +44,16 @@ public sealed record Card
             (!float.IsFinite(difficultyValue) || difficultyValue is < 1f or > 10f))
         {
             throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, "Difficulty must be finite and between 1 and 10.");
+        }
+
+        if (due.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Due must have UTC kind.", nameof(due));
+        }
+
+        if (lastReview is { Kind: not DateTimeKind.Utc })
+        {
+            throw new ArgumentException("Last review must have UTC kind.", nameof(lastReview));
         }
 
         CardId = cardId;

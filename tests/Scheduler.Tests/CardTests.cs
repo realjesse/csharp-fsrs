@@ -7,7 +7,7 @@ public class CardTests
     [Fact]
     public void Constructor_PreservesProvidedValues()
     {
-        var due = new DateTime(2026, 9, 28, 9, 30, 0, DateTimeKind.Local);
+        var due = new DateTime(2026, 9, 28, 9, 30, 0, DateTimeKind.Utc);
         var lastReview = new DateTime(2026, 9, 27, 9, 30, 0, DateTimeKind.Utc);
 
         var card = new Card(42, State.Review, 2, 3.5f, 6.25f, due, lastReview);
@@ -19,13 +19,13 @@ public class CardTests
         Assert.Equal(6.25f, card.Difficulty);
         Assert.Equal(due, card.Due);
         Assert.Equal(lastReview, card.LastReview);
-        Assert.Equal(DateTimeKind.Local, card.Due.Kind);
+        Assert.Equal(DateTimeKind.Utc, card.Due.Kind);
     }
 
     [Fact]
     public void Constructor_AllowsNullOptionalValues()
     {
-        var card = new Card(42, State.Learning, null, null, null, DateTime.MinValue, null);
+        var card = new Card(42, State.Learning, null, null, null, DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc), null);
 
         Assert.Null(card.Step);
         Assert.Null(card.Stability);
@@ -37,7 +37,30 @@ public class CardTests
     public void Constructor_RejectsUndefinedState()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new Card(42, (State)0, null, null, null, DateTime.MinValue, null));
+            new Card(42, (State)0, null, null, null, DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc), null));
+    }
+
+    [Theory]
+    [InlineData(DateTimeKind.Local)]
+    [InlineData(DateTimeKind.Unspecified)]
+    public void Constructor_RejectsNonUtcDue(DateTimeKind kind)
+    {
+        var due = DateTime.SpecifyKind(DateTime.MinValue, kind);
+
+        Assert.Throws<ArgumentException>(() =>
+            new Card(42, State.Learning, null, null, null, due, null));
+    }
+
+    [Theory]
+    [InlineData(DateTimeKind.Local)]
+    [InlineData(DateTimeKind.Unspecified)]
+    public void Constructor_RejectsNonUtcLastReview(DateTimeKind kind)
+    {
+        var due = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+        var lastReview = DateTime.SpecifyKind(DateTime.MinValue, kind);
+
+        Assert.Throws<ArgumentException>(() =>
+            new Card(42, State.Learning, null, null, null, due, lastReview));
     }
 
     [Theory]
@@ -48,7 +71,7 @@ public class CardTests
     public void Constructor_RejectsInvalidStability(float stability)
     {
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new Card(42, State.Review, null, stability, null, DateTime.MinValue, null));
+            new Card(42, State.Review, null, stability, null, DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc), null));
     }
 
     [Theory]
@@ -60,6 +83,6 @@ public class CardTests
     public void Constructor_RejectsInvalidDifficulty(float difficulty)
     {
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new Card(42, State.Review, null, null, difficulty, DateTime.MinValue, null));
+            new Card(42, State.Review, null, null, difficulty, DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc), null));
     }
 }
